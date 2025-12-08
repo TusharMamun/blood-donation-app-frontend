@@ -1,13 +1,34 @@
 import React from "react";
 import { FaCamera, FaEdit } from "react-icons/fa";
 import useAuth from "../../Hooks/useAuth";
+import cover from "../.././assets/CoverPhoto.jpg";
+import useUserRole from "../../Hooks/useUserRole";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
-import cover from '../.././assets/CoverPhoto.jpg'
 const Profile = () => {
-  const { user } = useAuth()
+  const { user, loading } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
-  const name = user?.displayName || "User";
-  const photo = user?.photoURL;
+  const [role, isRoleLoading] = useUserRole();
+
+  const { data: Profil, isLoading } = useQuery({
+    enabled: !loading && !!user?.email,
+    queryKey: ["Profile", user?.email],
+    queryFn: async () => {
+      const { data } = await axiosSecure.get(`/profile/${user.email}`);
+      return data;
+    },
+  });
+
+  // ✅ Use DB data first, fallback to firebase user
+  const name = Profil?.name || user?.displayName || "User";
+  const email = Profil?.email || user?.email || "";
+  const photo = Profil?.photo || Profil?.photoUrl || user?.photoURL || "";
+  const district = Profil?.district || "—";
+  const upazila = Profil?.upazila || "—";
+  const bloodGroup = Profil?.bloodGroup || "—";
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50 p-4 sm:p-6">
@@ -15,15 +36,9 @@ const Profile = () => {
         <div className="overflow-hidden rounded-3xl border bg-white shadow-sm">
           {/* Cover */}
           <div className="relative h-44 sm:h-56">
-            <img
-              className="h-full w-full object-cover"
-              src={cover}
-              alt="cover"
-            />
-            {/* overlay */}
+            <img className="h-full w-full object-cover" src={cover} alt="cover" />
             <div className="absolute inset-0 bg-black/25" />
 
-            {/* Cover edit button (UI only) */}
             <button
               type="button"
               className="btn btn-sm absolute right-4 top-4 gap-2 rounded-xl bg-white/90 hover:bg-white"
@@ -54,7 +69,6 @@ const Profile = () => {
                     </div>
                   )}
 
-                  {/* Avatar edit icon (UI only) */}
                   <button
                     type="button"
                     title="Update profile photo (UI only)"
@@ -67,41 +81,69 @@ const Profile = () => {
                 {/* Name */}
                 <div className="text-center sm:text-left">
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                    {name}
+                    {isLoading ? "Loading..." : name}
                   </h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {user?.email || ""}
-                  </p>
+                  <p className="mt-1 text-sm text-slate-500">{email}</p>
                 </div>
               </div>
 
-              {/* Edit Profile button (UI only) */}
-              <button
-                type="button"
+              <Link
+                to="/dashboard/updateProfile"
+                state={{
+                  name,
+                  email,
+                  district,
+                  upazila,
+                  photoUrl: photo,
+                  bloodGroup, // ✅ pass if you need in update form later
+                }}
                 className="btn btn-primary rounded-xl gap-2"
-                title="Edit profile (UI only)"
+                title="Edit profile"
               >
                 <FaEdit />
                 Edit Profile
-              </button>
+              </Link>
             </div>
 
-            {/* little website-style info cards (still static) */}
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {/* Cards */}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-2xl border bg-slate-50 p-4">
                 <p className="text-xs text-slate-500">Role</p>
-                <p className="font-semibold text-slate-900">Donor</p>
+                <p className="font-semibold text-slate-900">
+                  {isRoleLoading ? "Loading..." : role || Profil?.role || "—"}
+                </p>
               </div>
+
               <div className="rounded-2xl border bg-slate-50 p-4">
                 <p className="text-xs text-slate-500">Status</p>
-                <p className="font-semibold text-slate-900">Active</p>
+                <p className="font-semibold text-slate-900">
+                  {Profil?.status || "Active"}
+                </p>
               </div>
+
+              {/* ✅ Blood Group card */}
+              <div className="rounded-2xl border bg-slate-50 p-4">
+                <p className="text-xs text-slate-500">Blood Group</p>
+                <p className="font-semibold text-slate-900">{bloodGroup}</p>
+              </div>
+
+              {/* Location */}
               <div className="rounded-2xl border bg-slate-50 p-4">
                 <p className="text-xs text-slate-500">Location</p>
-                <p className="font-semibold text-slate-900">Bangladesh</p>
+                <div className="mt-1 space-y-1">
+                  <p className="text-sm text-slate-600">
+                    <span className="font-semibold text-slate-900">District:</span>{" "}
+                    {district}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    <span className="font-semibold text-slate-900">Upazila:</span>{" "}
+                    {upazila}
+                  </p>
+                </div>
               </div>
             </div>
-            {/* NOTE: those cards are static UI. remove them if you want only name+img */}
+
+            {/* NOTE: cards are UI. keep/remove as you want */}
           </div>
         </div>
       </div>

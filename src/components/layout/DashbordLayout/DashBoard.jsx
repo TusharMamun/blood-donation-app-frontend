@@ -84,9 +84,31 @@ const DashboardLayout = () => {
             <div className="flex h-full flex-col">
               {/* header */}
               <div className="flex items-center justify-between gap-2 px-2 py-2">
-                <div className={`font-extrabold text-indigo-800 ${collapsed ? "hidden" : "block"}`}>
-                  Blood Donate
-                </div>
+               
+         <Link to="/" className={`flex items-center gap-3 font-extrabold text-indigo-800 ${collapsed ? "hidden" : "block"}  `}>
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/10">
+                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path
+                    d="M12 2s6 6.6 6 12a6 6 0 1 1-12 0c0-5.4 6-12 6-12z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path d="M12 9v6" strokeLinecap="round" />
+                  <path d="M9 12h6" strokeLinecap="round" />
+                </svg>
+              </div>
+
+              <div className="leading-tight">
+                <div className="text-lg font-extrabold uppercase text-primary">Blood</div>
+                <div className="text-lg font-extrabold uppercase -mt-1">Donation</div>
+              </div>
+            </Link>
+
+
+
+
+
+
 
                 <button
                   onClick={() => setCollapsed((v) => !v)}
@@ -153,6 +175,36 @@ const DashboardLayout = () => {
                     </Icon>
                     <span className={`${collapsed ? "hidden" : "block"} font-medium`}>
                       My Donation Requests
+                    </span>
+                  </NavLink>
+{/* creat Donation Request */}
+
+
+
+                  <NavLink
+                    to="/dashboard/creatDonerRequest"
+                    className={navClass}
+                    title="Creat Doner Request"
+                  >
+                    <Icon>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="2"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 21s-6-4.35-6-10a6 6 0 1112 0c0 5.65-6 10-6 10z"
+                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 11v3" />
+                      </svg>
+                    </Icon>
+                    <span className={`${collapsed ? "hidden" : "block"} font-medium`}>
+               Creat Doner Request
                     </span>
                   </NavLink>
 

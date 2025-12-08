@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import {
   createUserWithEmailAndPassword,
   getAuth,
@@ -7,9 +8,10 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { AuthContext } from "./AuthContext";
+
 import { app } from "../../Firabse/firebase.config";
 import Loading from "../../components/Uicomponent/Loadding";
+import { AuthContext } from "./Authcontext";
 
 
 const auth = getAuth(app);

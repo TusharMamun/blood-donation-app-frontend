@@ -9,6 +9,9 @@ import Loging from "../Authcomponents/LogingPage/Loging";
 import Regestration from "../Authcomponents/RegesterPage/Regestration";
 import DashboardLayout from "../components/layout/DashbordLayout/DashBoard";
 import Profile from "../Authcomponents/Profile/Profile";
+import AllUser from "../Pages/DashbordPages/AllUser";
+import UpdateProfile from "../Authcomponents/Profile/UpdateProfile";
+import CreataDonationRequest from "../Pages/DashbordPages/CreataDonationRequest";
 
 
 export const router = createBrowserRouter([
@@ -56,14 +59,31 @@ export const router = createBrowserRouter([
     path: "/dashboard",
     element: <DashboardLayout />,
     children: [
-      { index: true, element: <h1>home</h1>},
+      { index: true, 
+        element: <h1>home</h1>}
+        ,
       {
 path:"/dashboard/profile",
 element:<Profile></Profile>
 
-      } // ✅ /dashboard
-      // { path: "all-users", element: <AllUsers /> }, // ✅ /dashboard/all-users (admin)
-      // { path: "all-blood-donation-request", element: <AllBloodDonationRequest /> }, // ✅ /dashboard/all-blood-donation-request
+      } ,
+      {
+path:"/dashboard/updateProfile",
+element:<UpdateProfile></UpdateProfile>,
+  loader:()=>fetch("/LocationData.json")
+
+      } ,
+        
+      {
+path:"/dashboard/all-users",
+element:<AllUser></AllUser>
+
+      } ,
+      {
+path:"/dashboard/creatDonerRequest",
+element:<CreataDonationRequest></CreataDonationRequest>
+
+      } ,
     ],
   },
 ]);

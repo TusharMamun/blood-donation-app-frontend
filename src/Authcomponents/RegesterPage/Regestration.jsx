@@ -5,14 +5,16 @@ import useAuth from "../../Hooks/useAuth";
 import Loading from "../../components/Uicomponent/Loadding";
 import { imageUpload } from "../../utils";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const Regestration = () => {
   const { createUser, updateUserProfile } = useAuth();
   const locaitondata = useLoaderData();
+  const AxiosSecure = useAxiosSecure()
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  // const navigate = useNavigate();
+  // const location = useLocation();
+  // const from = location.state?.from?.pathname || "/";
 
   const bloodGroups = useMemo(
     () => ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
@@ -65,12 +67,20 @@ const Regestration = () => {
       (d) => String(d.id) === String(data.district)
     );
 
+
+
+
     const finalData = {
       ...data,
       districtName: districtObj?.name || "",
     };
 
     const { name, email, password, ProfileImage } = finalData;
+
+
+
+
+
 
     const imageFile = ProfileImage?.[0];
     if (!imageFile) {
@@ -90,6 +100,16 @@ const Regestration = () => {
 
       // 2) create user
       const result = await createUser(email, password);
+       const donorPayload = {
+      email: data.email,
+      name: data.name,
+      bloodGroup: data.bloodGroup,
+      district: finalData.districtName,
+      upazila: data.upazila,
+      photoUrl:photoURL,
+      role: "donor",
+      status: "active",
+        };
 
       // 3) update profile
       await updateUserProfile({
@@ -97,8 +117,12 @@ const Regestration = () => {
         photoURL: photoURL || "",
       });
 
-      console.log("Registered:", result.user);
-      console.log("FINAL DATA =>", finalData);
+AxiosSecure.post('/regesterDoner',donorPayload)
+.then(res=>{
+console.log("after savign regesterDonerData",res.data)
+})
+      // console.log("Registered:", result.user);
+      // console.log("FINAL DATA =>", finalData);
 
       // ✅ success alert only
       await Swal.fire({
@@ -110,13 +134,17 @@ const Regestration = () => {
       });
 
       reset();
-      navigate(from, { replace: true }); // ✅ same previous functionality
+      // navigate(from, { replace: true }); // ✅ same previous functionality
     } catch (err) {
       Swal.fire({
         icon: "error",
         title: "Registration failed",
         text: err?.response?.data || err.message || "Something went wrong!",
       });
+
+
+
+
     } finally {
       setPageLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 import useAuth from "../../Hooks/useAuth";
 
 const Loging = () => {
@@ -23,10 +24,25 @@ const Loging = () => {
     try {
       const res = await signIn(data.email, data.password);
       console.log("Logged in user:", res.user);
-      alert("success")
+
+      await Swal.fire({
+        icon: "success",
+        title: "Login successful!",
+        text: "Welcome back 🙂",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       navigate(from, { replace: true });
     } catch (err) {
-      console.log("Login error:", err.message);
+      console.log("Login error:", err?.message);
+
+      Swal.fire({
+        icon: "error",
+        title: "Login failed!",
+        text: err?.message || "Invalid email or password",
+        confirmButtonText: "Try again",
+      });
     }
   };
 
@@ -196,7 +212,7 @@ const Loging = () => {
 
               <p className="text-center text-sm text-base-content/70">
                 Don’t have an account?{" "}
-                <Link className="link link-primary" to="/regester">
+                <Link className="link link-primary" to="/register">
                   Register
                 </Link>
               </p>

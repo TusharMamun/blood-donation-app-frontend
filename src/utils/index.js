@@ -1,5 +1,7 @@
 import axios from "axios";
 
+
+
 export const imageUpload = async (imageData) => {
   const formData = new FormData();
   formData.append("image", imageData);
@@ -11,3 +13,10 @@ export const imageUpload = async (imageData) => {
 
   return data?.data?.display_url || "";
 };
+export const SaveOrUpdate=async userData =>{
+const {data} = await axios.post(
+  ` ${import.meta.env.VITE_BASEURL}/user`,
+  userData
+)
+return data
+}
