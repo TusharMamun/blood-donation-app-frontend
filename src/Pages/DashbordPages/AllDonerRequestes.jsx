@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
-const STATUSES = ["", "pending", "approved", "done", "cancelled"];
+const STATUSES = ["", "inprogress", "pending", "approved", "done", "cancelled"];
+
 const BLOOD = ["", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const AllDonerRequestes = () => {
@@ -44,6 +45,8 @@ const AllDonerRequestes = () => {
     if (s === "approved") return "badge badge-success badge-outline";
     if (s === "done") return "badge badge-info badge-outline";
     if (s === "cancelled") return "badge badge-error badge-outline";
+        if (s === "inprogress") return "badge badge-success badge-outline";
+   
     return "badge badge-ghost";
   };
 
@@ -53,7 +56,7 @@ const AllDonerRequestes = () => {
     setSearch("");
     setPage(1);
   };
-
+ refetch()
   if (isLoading) return <div className="p-10 text-center text-slate-500">Loading...</div>;
   if (isError) return <div className="p-10 text-center text-red-600">Error: {error?.message}</div>;
 
@@ -66,7 +69,7 @@ const AllDonerRequestes = () => {
             All Blood Donation Requests
           </h2>
           <p className="text-sm text-slate-500">
-            Search + filter + pagination {isFetching ? " • Updating..." : ""}
+     {isFetching ? " • Updating..." : ""}
           </p>
         </div>
 

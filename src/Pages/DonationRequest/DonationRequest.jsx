@@ -2,6 +2,7 @@ import React from 'react'
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import Loading from '../../components/Uicomponent/Loadding';
 
 const DonationRequest = () => {
 
@@ -17,6 +18,7 @@ const { data: pendingRequests = [], isLoading,refetch } = useQuery({
     return data;
   },
 });
+if (isLoading) return <Loading/>;
   return (
    <div className="p-4 sm:p-6">
       <div className="mb-5 flex items-end justify-between gap-3">
@@ -29,7 +31,7 @@ const { data: pendingRequests = [], isLoading,refetch } = useQuery({
           </p>
         </div>
 
-        {/* ✅ Manual refresh button */}
+        {/* ✅ Manual refresh button ttt */}
         <button
           onClick={() => refetch()}
           className="btn btn-outline btn-sm rounded-xl"
@@ -80,19 +82,13 @@ const { data: pendingRequests = [], isLoading,refetch } = useQuery({
               <div className="mt-5 grid grid-cols-2 gap-2">
                 <Link
                   to={`/dashboard/donation-request/${r._id}`}
-                  className="btn btn-primary btn-sm rounded-xl"
+                  className="btn btn-primary w-full rounded-xl"
                 >
                   View
                 </Link>
 
                 {/* optional action to demonstrate refetch */}
-                <button
-                //   onClick={() => handleCancel(r._id)}
-                  className="btn btn-outline btn-sm rounded-xl"
-                  type="button"
-                >
-                  Cancel
-                </button>
+               
               </div>
             </div>
           ))}

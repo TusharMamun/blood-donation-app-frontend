@@ -14,6 +14,7 @@ import UpdateProfile from "../Authcomponents/Profile/UpdateProfile";
 import CreataDonationRequest from "../Pages/DashbordPages/CreataDonationRequest";
 import AllDonerRequestes from "../Pages/DashbordPages/AllDonerRequestes";
 import MyDonationPage from "../Pages/DonationRequest/MyDonationPage";
+import DonationRequestDetails from "../Pages/DashbordPages/DonationRequestDetails";
 
 
 
@@ -36,8 +37,8 @@ export const router = createBrowserRouter([
       element:<DonationRequest></DonationRequest>
       },
       {
-        path:"/donation-requests", // default route for "/"
-      element:<DonationRequest></DonationRequest>
+        path:"/dashboard/donation-request/:id", // default route for "/"
+      element:<DonationRequestDetails></DonationRequestDetails>
       },
       {
         path:"/funding", // default route for "/"
