@@ -12,6 +12,9 @@ import Profile from "../Authcomponents/Profile/Profile";
 import AllUser from "../Pages/DashbordPages/AllUser";
 import UpdateProfile from "../Authcomponents/Profile/UpdateProfile";
 import CreataDonationRequest from "../Pages/DashbordPages/CreataDonationRequest";
+import AllDonerRequestes from "../Pages/DashbordPages/AllDonerRequestes";
+import MyDonationPage from "../Pages/DonationRequest/MyDonationPage";
+
 
 
 export const router = createBrowserRouter([
@@ -80,8 +83,19 @@ element:<AllUser></AllUser>
 
       } ,
       {
+path:"/dashboard/all-blood-donation-request",
+element:<AllDonerRequestes></AllDonerRequestes>
+
+      } ,
+      {
+path:"/dashboard/my-donation-requests",
+element:<MyDonationPage></MyDonationPage>
+
+      } ,
+      {
 path:"/dashboard/creatDonerRequest",
-element:<CreataDonationRequest></CreataDonationRequest>
+element:<CreataDonationRequest></CreataDonationRequest>,
+  loader:()=>fetch("/LocationData.json")
 
       } ,
     ],
