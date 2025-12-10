@@ -138,7 +138,7 @@ console.log("after savign regesterDonerData",res.data)
     } catch (err) {
       Swal.fire({
         icon: "error",
-        title: "Registration failed",
+        title: "You Are Allready Regestered as Doner ",
         text: err?.response?.data || err.message || "Something went wrong!",
       });
 

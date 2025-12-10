@@ -3,6 +3,7 @@ import useAuth from "../../Hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
+
 const MyDonationPage = () => {
   const { user, loading } = useAuth();
   const axiosSecure = useAxiosSecure();
@@ -19,7 +20,9 @@ const MyDonationPage = () => {
       const res = await axiosSecure.get(
         `/my-blood-donation-requests?email=${user.email}`
       );
+            console.log(res.data)
       return res.data;
+
     },
   });
 

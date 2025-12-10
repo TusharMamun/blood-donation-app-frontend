@@ -15,6 +15,7 @@ import CreataDonationRequest from "../Pages/DashbordPages/CreataDonationRequest"
 import AllDonerRequestes from "../Pages/DashbordPages/AllDonerRequestes";
 import MyDonationPage from "../Pages/DonationRequest/MyDonationPage";
 import DonationRequestDetails from "../Pages/DashbordPages/DonationRequestDetails";
+import PaymentSuccess from "../Pages/Funding/PaymentSuccess";
 
 
 
@@ -43,6 +44,10 @@ export const router = createBrowserRouter([
       {
         path:"/funding", // default route for "/"
       element:<Funding></Funding>
+      },
+      {
+      path:"/dashboard/payment-success",
+element:<PaymentSuccess></PaymentSuccess>
       },
       {
         path:'/loging',
