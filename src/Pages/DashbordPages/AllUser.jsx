@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import Swal from "sweetalert2";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FiUserCheck, FiUserX, FiShield, FiUsers, FiSearch } from "react-icons/fi";
 import useAuth from "../../Hooks/useAuth";
@@ -9,12 +10,12 @@ const AllUser = () => {
   const { user, loading } = useAuth();
   const axiosSecure = useAxiosSecure();
 
-  const [status, setStatus] = useState("all");      // all | active | blocked
+  const [status, setStatus] = useState("all"); // all | active | blocked
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     enabled: !loading && !!user,
     queryKey: ["AllUserForAllUserPage", status, search, page, limit],
     queryFn: async () => {
@@ -29,40 +30,71 @@ const AllUser = () => {
   const users = data?.result || [];
   const totalPages = data?.totalPages || 1;
 
+  const updateStatus = async (id, nextStatus) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: `This user will be ${nextStatus}.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "Cancel",
+    });
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await axiosSecure.patch(`/users/${id}/status`, { status: nextStatus });
+      await Swal.fire({ icon: "success", title: "Updated!", timer: 1200, showConfirmButton: false });
+      refetch();
+    } catch (err) {
+      Swal.fire("Failed!", err?.response?.data?.message || err?.message || "Update failed", "error");
+    }
+  };
+
+  const updateRole = async (id, role) => {
+    const confirm = await Swal.fire({
+      title: "Confirm role change?",
+      text: `This user will become ${role}.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "Cancel",
+    });
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await axiosSecure.patch(`/users/${id}/role`, { role });
+      await Swal.fire({ icon: "success", title: "Role Updated!", timer: 1200, showConfirmButton: false });
+      refetch();
+      clg 
+    } catch (err) {
+      Swal.fire("Failed!", err?.response?.data?.message || err?.message || "Role update failed", "error");
+    }
+  };
+
   return (
     <div className="w-full">
       {/* Header */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800">
-            All Users
-          </h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800">All Users</h1>
           <p className="text-sm text-slate-500">View and manage all registered users.</p>
         </div>
 
         {/* Filter */}
         <div className="join w-full sm:w-auto">
-          <button
-            className={`btn btn-sm join-item ${status === "all" ? "btn-primary" : "btn-outline"}`}
-            type="button"
-            onClick={() => { setStatus("all"); setPage(1); }}
-          >
-            All
-          </button>
-          <button
-            className={`btn btn-sm join-item ${status === "active" ? "btn-primary" : "btn-outline"}`}
-            type="button"
-            onClick={() => { setStatus("active"); setPage(1); }}
-          >
-            Active
-          </button>
-          <button
-            className={`btn btn-sm join-item ${status === "blocked" ? "btn-primary" : "btn-outline"}`}
-            type="button"
-            onClick={() => { setStatus("blocked"); setPage(1); }}
-          >
-            Blocked
-          </button>
+          {["all", "active", "blocked"].map((s) => (
+            <button
+              key={s}
+              className={`btn btn-sm join-item ${status === s ? "btn-primary" : "btn-outline"}`}
+              type="button"
+              onClick={() => {
+                setStatus(s);
+                setPage(1);
+              }}
+            >
+              {s}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -83,18 +115,19 @@ const AllUser = () => {
           </div>
 
           {/* Search */}
-          <div className="flex items-center gap-2">
-            <label className="input input-bordered input-sm flex items-center gap-2 w-full sm:w-72">
-              <FiSearch className="opacity-60" />
-              <input
-                type="text"
-                className="grow"
-                placeholder="Search name/email"
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              />
-            </label>
-          </div>
+          <label className="input input-bordered input-sm flex items-center gap-2 w-full sm:w-72">
+            <FiSearch className="opacity-60" />
+            <input
+              type="text"
+              className="grow"
+              placeholder="Search name/email"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </label>
         </div>
 
         {/* Table */}
@@ -129,7 +162,7 @@ const AllUser = () => {
                   const uname = u?.name || "Unknown";
                   const email = u?.email || "—";
                   const role = u?.role || "donor";
-                  const status = u?.status || "active";
+                  const st = u?.status || "active";
 
                   return (
                     <tr key={u?._id || email} className="hover">
@@ -150,12 +183,8 @@ const AllUser = () => {
                           )}
 
                           <div className="min-w-0">
-                            <div className="font-semibold text-slate-800 truncate">
-                              {uname}
-                            </div>
-                            <div className="text-xs text-slate-500 truncate">
-                              ID: {u?._id || "—"}
-                            </div>
+                            <div className="font-semibold text-slate-800 truncate">{uname}</div>
+                            <div className="text-xs text-slate-500 truncate">ID: {u?._id || "—"}</div>
                           </div>
                         </div>
                       </td>
@@ -163,18 +192,16 @@ const AllUser = () => {
                       <td className="text-slate-700">{email}</td>
 
                       <td>
-                        <span className="badge badge-ghost badge-outline">
-                          {role}
-                        </span>
+                        <span className="badge badge-ghost badge-outline">{role}</span>
                       </td>
 
                       <td>
                         <span
                           className={`badge badge-outline ${
-                            status === "blocked" ? "badge-error" : "badge-success"
+                            st === "blocked" ? "badge-error" : "badge-success"
                           }`}
                         >
-                          {status}
+                          {st}
                         </span>
                       </td>
 
@@ -183,33 +210,54 @@ const AllUser = () => {
                           <button className="btn btn-ghost btn-sm" type="button">
                             <HiOutlineDotsVertical className="h-5 w-5" />
                           </button>
+
                           <ul className="dropdown-content menu rounded-xl border border-slate-200 bg-white p-2 shadow-lg w-56">
+                            {/* Block/Unblock */}
                             <li>
-                              <button type="button" disabled className="gap-2">
-                                {status === "blocked" ? (
-                                  <>
-                                    <FiUserCheck className="h-4 w-4 text-green-600" />
-                                    Unblock user (UI)
-                                  </>
-                                ) : (
-                                  <>
-                                    <FiUserX className="h-4 w-4 text-red-600" />
-                                    Block user (UI)
-                                  </>
-                                )}
-                              </button>
+                              {st === "blocked" ? (
+                                <button
+                                  type="button"
+                                  className="gap-2"
+                                  onClick={() => updateStatus(u._id, "active")}
+                                >
+                                  <FiUserCheck className="h-4 w-4 text-green-600" />
+                                  Unblock user
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="gap-2"
+                                  onClick={() => updateStatus(u._id, "blocked")}
+                                >
+                                  <FiUserX className="h-4 w-4 text-red-600" />
+                                  Block user
+                                </button>
+                              )}
                             </li>
+
                             <div className="my-1 h-px bg-slate-100" />
+
+                            {/* Make volunteer */}
                             <li>
-                              <button type="button" disabled className="gap-2">
+                              <button
+                                type="button"
+                                className="gap-2"
+                                onClick={() => updateRole(u._id, "volunteer")}
+                              >
                                 <FiUsers className="h-4 w-4 text-indigo-600" />
-                                Make volunteer (UI)
+                                Make volunteer
                               </button>
                             </li>
+
+                            {/* Make admin */}
                             <li>
-                              <button type="button" disabled className="gap-2">
+                              <button
+                                type="button"
+                                className="gap-2"
+                                onClick={() => updateRole(u._id, "admin")}
+                              >
                                 <FiShield className="h-4 w-4 text-purple-600" />
-                                Make admin (UI)
+                                Make admin
                               </button>
                             </li>
                           </ul>

@@ -10,11 +10,11 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 const Regestration = () => {
   const { createUser, updateUserProfile } = useAuth();
   const locaitondata = useLoaderData();
-  const AxiosSecure = useAxiosSecure()
+  const AxiosSecure = useAxiosSecure();
 
-  // const navigate = useNavigate();
-  // const location = useLocation();
-  // const from = location.state?.from?.pathname || "/";
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   const bloodGroups = useMemo(
     () => ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
@@ -45,42 +45,26 @@ const Regestration = () => {
     },
   });
 
-  // ✅ useWatch
   const password = useWatch({ control, name: "password" });
   const districtId = useWatch({ control, name: "district" });
 
-  // ✅ selected district (safe compare)
   const selectedDistrict = useMemo(() => {
     return locaitondata?.find((d) => String(d.id) === String(districtId));
   }, [locaitondata, districtId]);
 
   const upazilas = selectedDistrict?.upazilas ?? [];
 
-  // ✅ reset upazila when district changes
   useEffect(() => {
     setValue("upazila", "");
   }, [districtId, setValue]);
 
   const hendelRegestration = async (data) => {
-    // ✅ add district name into submitted data
     const districtObj = locaitondata?.find(
       (d) => String(d.id) === String(data.district)
     );
 
-
-
-
-    const finalData = {
-      ...data,
-      districtName: districtObj?.name || "",
-    };
-
-    const { name, email, password, ProfileImage } = finalData;
-
-
-
-
-
+    const districtName = districtObj?.name || "";
+    const { name, email, password, ProfileImage } = data;
 
     const imageFile = ProfileImage?.[0];
     if (!imageFile) {
@@ -100,16 +84,6 @@ const Regestration = () => {
 
       // 2) create user
       const result = await createUser(email, password);
-       const donorPayload = {
-      email: data.email,
-      name: data.name,
-      bloodGroup: data.bloodGroup,
-      district: finalData.districtName,
-      upazila: data.upazila,
-      photoUrl:photoURL,
-      role: "donor",
-      status: "active",
-        };
 
       // 3) update profile
       await updateUserProfile({
@@ -117,14 +91,22 @@ const Regestration = () => {
         photoURL: photoURL || "",
       });
 
-AxiosSecure.post('/regesterDoner',donorPayload)
-.then(res=>{
-console.log("after savign regesterDonerData",res.data)
-})
-      // console.log("Registered:", result.user);
-      // console.log("FINAL DATA =>", finalData);
+      // 4) save donor to DB (IMPORTANT: await)
+      const donorPayload = {
+        email,
+        name,
+        bloodGroup: data.bloodGroup,
+        district: districtName,
+        upazila: data.upazila,
+        photoURL, // ✅ consistent
+        role: "donor",
+        status: "active",
+      };
 
-      // ✅ success alert only
+      const res = await AxiosSecure.post("/regesterDoner", donorPayload);
+      console.log("after saving regesterDonerData", res.data);
+
+      // ✅ success alert only after DB save
       await Swal.fire({
         icon: "success",
         title: "Registration successful!",
@@ -134,23 +116,33 @@ console.log("after savign regesterDonerData",res.data)
       });
 
       reset();
-      // navigate(from, { replace: true }); // ✅ same previous functionality
+      navigate(from, { replace: true });
     } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.response?.data ||
+        err?.message ||
+        "Something went wrong!";
+
+      const isDuplicate = err?.response?.status === 409;
+
       Swal.fire({
         icon: "error",
-        title: "You Are Allready Regestered as Doner ",
-        text: err?.response?.data || err.message || "Something went wrong!",
+        title: isDuplicate
+          ? "You are already registered as donor"
+          : "Registration failed",
+        text: msg,
       });
 
-
-
-
+      console.error("Registration error:", err);
     } finally {
       setPageLoading(false);
     }
   };
 
-  if (pageLoading) return <Loading label="Uploading photo & creating account..." />;
+  if (pageLoading)
+    return <Loading label="Uploading photo & creating account..." />;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-base-200">
@@ -160,7 +152,9 @@ console.log("after savign regesterDonerData",res.data)
             <div className="flex items-end justify-between gap-3">
               <div>
                 <h2 className="text-2xl font-extrabold">Registration</h2>
-                <p className="text-sm text-base-content/70">Create your donor account</p>
+                <p className="text-sm text-base-content/70">
+                  Create your donor account
+                </p>
               </div>
 
               <Link to="/loging" className="link link-primary text-sm">
@@ -177,7 +171,9 @@ console.log("after savign regesterDonerData",res.data)
                 <input
                   type="email"
                   placeholder="you@email.com"
-                  className={`input input-bordered w-full ${errors.email ? "input-error" : ""}`}
+                  className={`input input-bordered w-full ${
+                    errors.email ? "input-error" : ""
+                  }`}
                   {...register("email", {
                     required: "Email is required",
                     pattern: {
@@ -188,7 +184,9 @@ console.log("after savign regesterDonerData",res.data)
                 />
                 {errors.email && (
                   <div className="label">
-                    <span className="label-text-alt text-error">{errors.email.message}</span>
+                    <span className="label-text-alt text-error">
+                      {errors.email.message}
+                    </span>
                   </div>
                 )}
               </label>
@@ -200,12 +198,16 @@ console.log("after savign regesterDonerData",res.data)
                 <input
                   type="text"
                   placeholder="Your full name"
-                  className={`input input-bordered w-full ${errors.name ? "input-error" : ""}`}
+                  className={`input input-bordered w-full ${
+                    errors.name ? "input-error" : ""
+                  }`}
                   {...register("name", { required: "Name is required" })}
                 />
                 {errors.name && (
                   <div className="label">
-                    <span className="label-text-alt text-error">{errors.name.message}</span>
+                    <span className="label-text-alt text-error">
+                      {errors.name.message}
+                    </span>
                   </div>
                 )}
               </label>
@@ -257,14 +259,15 @@ console.log("after savign regesterDonerData",res.data)
               </select>
               {errors.bloodGroup && (
                 <div className="label">
-                  <span className="label-text-alt text-error">{errors.bloodGroup.message}</span>
+                  <span className="label-text-alt text-error">
+                    {errors.bloodGroup.message}
+                  </span>
                 </div>
               )}
             </label>
 
             {/* District + Upazila */}
             <div className="grid gap-4 sm:grid-cols-2">
-              {/* District */}
               <label className="form-control w-full">
                 <div className="label">
                   <span className="label-text font-medium">District</span>
@@ -290,12 +293,13 @@ console.log("after savign regesterDonerData",res.data)
 
                 {errors.district && (
                   <div className="label">
-                    <span className="label-text-alt text-error">{errors.district.message}</span>
+                    <span className="label-text-alt text-error">
+                      {errors.district.message}
+                    </span>
                   </div>
                 )}
               </label>
 
-              {/* Upazila */}
               <label className="form-control w-full">
                 <div className="label">
                   <span className="label-text font-medium">Upazila</span>
@@ -322,7 +326,9 @@ console.log("after savign regesterDonerData",res.data)
 
                 {errors.upazila && (
                   <div className="label">
-                    <span className="label-text-alt text-error">{errors.upazila.message}</span>
+                    <span className="label-text-alt text-error">
+                      {errors.upazila.message}
+                    </span>
                   </div>
                 )}
               </label>
@@ -345,7 +351,8 @@ console.log("after savign regesterDonerData",res.data)
                     {...register("password", {
                       required: "Password is required",
                       pattern: {
-                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/,
+                        value:
+                          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/,
                         message:
                           "Password must have uppercase, lowercase, number & special character (min 6)",
                       },
@@ -362,7 +369,9 @@ console.log("after savign regesterDonerData",res.data)
 
                 {errors.password && (
                   <div className="label">
-                    <span className="label-text-alt text-error">{errors.password.message}</span>
+                    <span className="label-text-alt text-error">
+                      {errors.password.message}
+                    </span>
                   </div>
                 )}
               </label>

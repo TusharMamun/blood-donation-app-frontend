@@ -102,7 +102,7 @@ const Loging = () => {
                 <div className="rounded-xl border border-base-200 p-4">
                   <p className="text-sm text-base-content/70">
                     New here?
-                    <Link to="/register" className="link link-primary ml-2">
+                    <Link to="/regester" className="link link-primary ml-2">
                       Create an account
                     </Link>
                   </p>
@@ -212,7 +212,7 @@ const Loging = () => {
 
               <p className="text-center text-sm text-base-content/70">
                 Don’t have an account?{" "}
-                <Link className="link link-primary" to="/register">
+                  <Link to="/regester" className="link link-primary" >
                   Register
                 </Link>
               </p>

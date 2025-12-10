@@ -12,12 +12,15 @@ const DonationRequest = () => {
 const { data: pendingRequests = [], isLoading,refetch } = useQuery({
   queryKey: ["donation-requests", "pending"],
   queryFn: async () => {
+refetch()
     const { data } = await axiosSecure.get("/donation-requests", {
       params: { status: "pending" },
     });
+        refetch()
     return data;
   },
 });
+refetch()
 if (isLoading) return <Loading/>;
   return (
    <div className="p-4 sm:p-6">

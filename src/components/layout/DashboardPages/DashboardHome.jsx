@@ -1,57 +1,111 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
+import useAuth from "../../../Hooks/useAuth";
+import MyLatestCompnent from "../../../Pages/Funding/MyLatestCompnent";
 
 
 const DashboardHome = () => {
-  // TODO: replace with real stats from API
-  const stats = {
-    totalUsers: 0,
-    totalFunding: 0,
-    totalRequests: 0,
-  };
+  const { user, loading } = useAuth()
+
+  if (loading) return <div className="p-6">Loading...</div>;
+
+  const name =
+    user?.displayName ||
+    user?.name ||
+    (user?.email ? user.email.split("@")[0] : "Donor");
 
   return (
-    <div className="space-y-6">
-      {/* Welcome */}
-      <div className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-white shadow-sm">
-        <h1 className="text-2xl font-extrabold">Welcome to Dashboard 🩸</h1>
-        <p className="mt-1 text-white/80 text-sm">
-          Manage users, donation requests, and platform statistics.
-        </p>
-      </div>
+    <div className="w-full">
+      {/* Full-width banner */}
+      <section className="w-full bg-gradient-to-r from-rose-50 via-white to-emerald-50 border-b border-slate-200">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+            {/* Left content */}
+            <div className="lg:col-span-8">
+              <p className="inline-flex items-center gap-2 text-sm font-medium text-slate-600">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                Donor Dashboard
+              </p>
 
-      {/* 3 cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard
-          title="Total Users (Donors)"
-          value={stats.totalUsers}
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 12a4 4 0 100-8 4 4 0 000 8z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 20a6 6 0 0112 0" />
-            </svg>
-          }
-        />
-        <StatCard
-          title="Total Funding"
-          value={stats.totalFunding}
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-3 0-5 1.5-5 4s2 4 5 4 5 1.5 5 4-2 4-5 4" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v2m0 16v2" />
-            </svg>
-          }
-        />
-        <StatCard
-          title="Total Blood Donation Requests"
-          value={stats.totalRequests}
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s-6-4.35-6-10a6 6 0 1112 0c0 5.65-6 10-6 10z" />
-            </svg>
-          }
-        />
-      </div>
+              <h1 className="mt-3 text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900">
+                Welcome,{" "}
+                <span className="text-emerald-600 break-words">{name}</span> 👋
+              </h1>
+
+              <p className="mt-3 text-slate-600 leading-relaxed max-w-2xl">
+                Thanks for being a donor. Manage your donation requests, track statuses,
+                and help save lives—quickly and easily.
+              </p>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Link
+                  to="/dashboard/my-donation-requests"
+                  className="btn btn-primary rounded-xl w-full sm:w-auto"
+                >
+                  My Donation Requests
+                </Link>
+
+                <Link
+                  to="/dashboard/creatDonerRequest"
+                  className="btn btn-outline rounded-xl w-full sm:w-auto"
+                >
+                  Create Request
+                </Link>
+              </div>
+
+              <div className="mt-6 rounded-xl bg-white/70 backdrop-blur border border-slate-200 p-4 w-full sm:w-fit">
+                <p className="text-sm text-slate-600">
+                  Logged in as:{" "}
+                  <span className="font-semibold text-slate-900 break-all">
+                    {user?.email || "—"}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {/* Right side “stats/cards” */}
+            <div className="lg:col-span-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
+                  <p className="text-sm text-slate-500">Quick Tip</p>
+                  <p className="mt-1 font-semibold text-slate-800">
+                    Keep your profile updated
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Correct phone & location helps recipients contact you faster.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
+                  <p className="text-sm text-slate-500">Next Step</p>
+                  <p className="mt-1 font-semibold text-slate-800">
+                    View your requests
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Track pending/inprogress/done requests from one place.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Optional: below-banner content area */}
+      <section className="w-full">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+            <h2 className="text-lg font-bold text-slate-800">What you can do here</h2>
+            <ul className="mt-3 text-slate-600 text-sm space-y-2 list-disc pl-5">
+              <li>Create a blood donation request</li>
+              <li>Manage and delete your requests</li>
+              <li>Track request status updates</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <MyLatestCompnent></MyLatestCompnent>
     </div>
   );
 };

@@ -16,6 +16,7 @@ import AllDonerRequestes from "../Pages/DashbordPages/AllDonerRequestes";
 import MyDonationPage from "../Pages/DonationRequest/MyDonationPage";
 import DonationRequestDetails from "../Pages/DashbordPages/DonationRequestDetails";
 import PaymentSuccess from "../Pages/Funding/PaymentSuccess";
+import DashboardHome from "../components/layout/DashboardPages/DashboardHome";
 
 
 
@@ -69,7 +70,8 @@ element:<PaymentSuccess></PaymentSuccess>
     element: <DashboardLayout />,
     children: [
       { index: true, 
-        element: <h1>home</h1>}
+        element: <DashboardHome></DashboardHome>
+      }
         ,
       {
 path:"/dashboard/profile",

@@ -3,6 +3,7 @@ import useAuth from "../../Hooks/useAuth";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 const  DonationRequestDetails=()=> {
   const { user } = useAuth();
@@ -10,17 +11,58 @@ const  DonationRequestDetails=()=> {
 const axiosSecure =useAxiosSecure()
  const navigate = useNavigate();
 
+const handleInProgress = async (id) => {
+  try {
+    const res = await axiosSecure.patch(`/update-status/${id}`, {
+      status: "inprogress",
+    });
 
+    const modifiedCount =
+      res?.data?.modifiedCount ?? res?.data?.result?.modifiedCount ?? 0;
+
+    if (modifiedCount === 1) {
+      await Swal.fire({
+        icon: "success",
+        title: "Thank you for donating blood ❤️",
+        text: "Your donation has been booked successfully.",
+        timer: 1400,
+        showConfirmButton: false,
+      });
+
+      setOpen(false);
+  
+      navigate("/donation-requests"); // 
+    } else {
+      await Swal.fire({
+        icon: "error",
+        title: "Sorry 😔",
+        text: "Your donation was not booked. Please try again.",
+        confirmButtonText: "OK",
+      });
+    }
+  } catch (err) {
+    await Swal.fire({
+      icon: "error",
+      title: "Sorry 😔",
+      text:
+        err?.response?.data?.message ||
+        err?.message ||
+        "Your donation was not booked. Please try again.",
+      confirmButtonText: "OK",
+    });
+  }
+};
 
 
 
   // Replace this with real data later
 const { id } = useParams();
 
-const { data: request, isLoading } = useQuery({
+const { data: request, isLoading,refetch } = useQuery({
   queryKey: ["donationRequestDetails", id],
   enabled: !!id,
   queryFn: async () => {
+    refetch()
     const res = await axiosSecure.get(`/blood-donation-requests/${id}`);
     return res.data;
   },
@@ -201,7 +243,7 @@ const { data: request, isLoading } = useQuery({
                 <button
                   className="btn btn-primary rounded-xl"
                   type="button"
-                  onClick={() => setOpen(false)}
+              onClick={()=>{handleInProgress(request._id)}}
                 >
                   Confirm
                 </button>
