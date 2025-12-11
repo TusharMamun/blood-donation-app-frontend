@@ -6,6 +6,7 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 
 const  DonationRequestDetails=()=> {
+  const { id } = useParams();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
 const axiosSecure =useAxiosSecure()
@@ -56,14 +57,14 @@ const handleInProgress = async (id) => {
 
 
   // Replace this with real data later
-const { id } = useParams();
+
 
 const { data: request, isLoading,refetch } = useQuery({
   queryKey: ["donationRequestDetails", id],
   enabled: !!id,
   queryFn: async () => {
     refetch()
-    const res = await axiosSecure.get(`/blood-donation-requests/${id}`);
+    const res = await axiosSecure.get(`/blood-donation-requests-details/${id}`);
     return res.data;
   },
 });
@@ -140,15 +141,17 @@ const { data: request, isLoading,refetch } = useQuery({
               </span>
             </p>
 
-            <button
-              className="btn btn-primary rounded-xl"
-              type="button"
-              onClick={() => setOpen(true)}
-              disabled={!user?.email}
-              title={!user?.email ? "Login required" : ""}
-            >
-              Donate
-            </button>
+      {request.status === "pending" && (
+  <button
+    className="btn btn-primary rounded-xl"
+    type="button"
+    onClick={() => setOpen(true)}
+    disabled={!user?.email}
+    title={!user?.email ? "Login required" : ""}
+  >
+    Donate
+  </button>
+)}
           </div>
 
           {!user?.email && (

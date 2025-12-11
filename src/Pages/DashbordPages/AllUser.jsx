@@ -30,26 +30,37 @@ const AllUser = () => {
   const users = data?.result || [];
   const totalPages = data?.totalPages || 1;
 
-  const updateStatus = async (id, nextStatus) => {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: `This user will be ${nextStatus}.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "Cancel",
+const updateStatus = async (id, nextStatus) => {
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: `This user will be ${nextStatus}.`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "Cancel",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    await axiosSecure.patch(`/users/${id}/status`, { status: nextStatus });
+
+    await Swal.fire({
+      icon: "success",
+      title: "Updated!",
+      timer: 1200,
+      showConfirmButton: false,
     });
-    if (!confirm.isConfirmed) return;
 
-    try {
-      await axiosSecure.patch(`/users/${id}/status`, { status: nextStatus });
-      await Swal.fire({ icon: "success", title: "Updated!", timer: 1200, showConfirmButton: false });
-      refetch();
-    } catch (err) {
-      Swal.fire("Failed!", err?.response?.data?.message || err?.message || "Update failed", "error");
-    }
-  };
-
+    refetch();
+  } catch (err) {
+    Swal.fire(
+      "Failed!",
+      err?.response?.data?.message || err?.message || "Update failed",
+      "error"
+    );
+  }
+};
   const updateRole = async (id, role) => {
     const confirm = await Swal.fire({
       title: "Confirm role change?",
@@ -65,7 +76,7 @@ const AllUser = () => {
       await axiosSecure.patch(`/users/${id}/role`, { role });
       await Swal.fire({ icon: "success", title: "Role Updated!", timer: 1200, showConfirmButton: false });
       refetch();
-      clg 
+   
     } catch (err) {
       Swal.fire("Failed!", err?.response?.data?.message || err?.message || "Role update failed", "error");
     }
@@ -212,55 +223,75 @@ const AllUser = () => {
                           </button>
 
                           <ul className="dropdown-content menu rounded-xl border border-slate-200 bg-white p-2 shadow-lg w-56">
-                            {/* Block/Unblock */}
-                            <li>
-                              {st === "blocked" ? (
-                                <button
-                                  type="button"
-                                  className="gap-2"
-                                  onClick={() => updateStatus(u._id, "active")}
-                                >
-                                  <FiUserCheck className="h-4 w-4 text-green-600" />
-                                  Unblock user
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="gap-2"
-                                  onClick={() => updateStatus(u._id, "blocked")}
-                                >
-                                  <FiUserX className="h-4 w-4 text-red-600" />
-                                  Block user
-                                </button>
-                              )}
-                            </li>
+  {/* Block/Unblock – allowed for admin & volunteer */}
+    <ul className="dropdown-content menu rounded-xl border border-slate-200 bg-white p-2 shadow-lg w-56">
+                            {/* Block/Unblock – allowed for admin & volunteer (logged-in user) */}
+                            {(role === "admin" ||
+                              role === "volunteer") && (
+                              <li>
+                                {st === "blocked" ? (
+                                  <button
+                                    type="button"
+                                    className="gap-2"
+                                    onClick={() =>
+                                      updateStatus(u._id, "active")
+                                    }
+                                  >
+                                    <FiUserCheck className="h-4 w-4 text-green-600" />
+                                    Unblock user
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="gap-2"
+                                    onClick={() =>
+                                      updateStatus(u._id, "blocked")
+                                    }
+                                  >
+                                    <FiUserX className="h-4 w-4 text-red-600" />
+                                    Block user
+                                  </button>
+                                )}
+                              </li>
+                            )}
 
-                            <div className="my-1 h-px bg-slate-100" />
+                            {/* Role change – ONLY admin (logged-in) */}    mn    
+                            {role === "admin" && (
+                              <>
+                                <div className="my-1 h-px bg-slate-100" />
 
-                            {/* Make volunteer */}
-                            <li>
-                              <button
-                                type="button"
-                                className="gap-2"
-                                onClick={() => updateRole(u._id, "volunteer")}
-                              >
-                                <FiUsers className="h-4 w-4 text-indigo-600" />
-                                Make volunteer
-                              </button>
-                            </li>
+                                {/* Make volunteer */}
+                                <li>
+                                  <button
+                                    type="button"
+                                    className="gap-2"
+                                    onClick={() =>
+                                      updateRole(u._id, "volunteer")
+                                    }
+                                  >
+                                    <FiUsers className="h-4 w-4 text-indigo-600" />
+                                    Make volunteer
+                                  </button>
+                                </li>
 
-                            {/* Make admin */}
-                            <li>
-                              <button
-                                type="button"
-                                className="gap-2"
-                                onClick={() => updateRole(u._id, "admin")}
-                              >
-                                <FiShield className="h-4 w-4 text-purple-600" />
-                                Make admin
-                              </button>
-                            </li>
+                                {/* Make admin */}
+                                <li>
+                                  <button
+                                    type="button"
+                                    className="gap-2"
+                                    onClick={() =>
+                                      updateRole(u._id, "admin")
+                                    }
+                                  >
+                                    <FiShield className="h-4 w-4 text-purple-600" />
+                                    Make admin
+                                  </button>
+                                </li>
+                              </>
+                            )}
                           </ul>
+</ul>
+
                         </div>
                       </td>
                     </tr>

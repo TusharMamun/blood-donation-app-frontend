@@ -17,6 +17,7 @@ import MyDonationPage from "../Pages/DonationRequest/MyDonationPage";
 import DonationRequestDetails from "../Pages/DashbordPages/DonationRequestDetails";
 import PaymentSuccess from "../Pages/Funding/PaymentSuccess";
 import DashboardHome from "../components/layout/DashboardPages/DashboardHome";
+import UpdateDonationRequest from "../Pages/DonationRequest/UPdateRequest";
 
 
 
@@ -39,8 +40,15 @@ export const router = createBrowserRouter([
       element:<DonationRequest></DonationRequest>
       },
       {
-        path:"/dashboard/donation-request/:id", // default route for "/"
+        path:"/donation-requests/:id", // default route for "/"
       element:<DonationRequestDetails></DonationRequestDetails>
+      },
+      {
+        path:'/updateDonation/:id',
+        element:<UpdateDonationRequest></UpdateDonationRequest>,
+             loader:()=>fetch("/LocationData.json")
+  
+
       },
       {
         path:"/funding", // default route for "/"

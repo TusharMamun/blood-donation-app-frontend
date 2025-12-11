@@ -69,39 +69,71 @@ const MyLatestCompnent = () => {
       );
     }
   };
+const updateRequestStatus = async (id, newStatus) => {
+  const confirm = await Swal.fire({
+    title: `Set status to "${newStatus}"?`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, update",
+    cancelButtonText: "Cancel",
+  });
 
-  const handleStatusChange = async (id, nextStatus) => {
-    const confirm = await Swal.fire({
-      title: `Change status to "${nextStatus}"?`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "No",
+  if (!confirm.isConfirmed) return;
+
+  try {
+    await axiosSecure.patch(`/my-blood-donation-requests-to-processing/${id}`, {
+      status: newStatus
     });
 
-    if (!confirm.isConfirmed) return;
+    await Swal.fire({
+      icon: "success",
+      title: `Status updated to "${newStatus}"!`,
+      timer: 1200,
+      showConfirmButton: false,
+    });
 
-    try {
-      await axiosSecure.patch(`/my-blood-donation-requests/${id}`, {
-        status: nextStatus, // "done" | "canceled"
-      });
+    refetch();
+  } catch (err) {
+    Swal.fire(
+      "Update failed!",
+      err?.response?.data?.message || err?.message || "Something went wrong.",
+      "error"
+    );
+  }
+};
 
-      await Swal.fire({
-        icon: "success",
-        title: "Updated!",
-        timer: 1100,
-        showConfirmButton: false,
-      });
+  // const handleStatusChange = async (id, nextStatus) => {
+  //   const confirm = await Swal.fire({
+  //     title: `Change status to "${nextStatus}"?`,
+  //     icon: "question",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Yes",
+  //     cancelButtonText: "No",
+  //   });
 
-      refetch();
-    } catch (err) {
-      Swal.fire(
-        "Failed!",
-        err?.response?.data?.message || err?.message || "Update failed",
-        "error"
-      );
-    }
-  };
+  //   if (!confirm.isConfirmed) return;
+
+  //   try {
+  //     await axiosSecure.patch(`/my-blood-donation-requests/${id}`, {
+  //       status: nextStatus, // "done" | "canceled"
+  //     });
+
+  //     await Swal.fire({
+  //       icon: "success",
+  //       title: "Updated!",
+  //       timer: 1100,
+  //       showConfirmButton: false,
+  //     });
+
+  //     refetch();
+  //   } catch (err) {
+  //     Swal.fire(
+  //       "Failed!",
+  //       err?.response?.data?.message || err?.message || "Update failed",
+  //       "error"
+  //     );
+  //   }
+  // };
 
   if (loading || isLoading) return <div className="p-6">Loading...</div>;
   if (isError) return <div className="p-6">Error: {error?.message}</div>;
@@ -208,8 +240,9 @@ const MyLatestCompnent = () => {
                             type="button"
                             className="btn btn-sm btn-outline rounded-xl gap-2"
                             onClick={() =>
-                              navigate(`/dashboard/donation-request/${r._id}`)
+                              navigate(`/donation-requests/${r._id}`)
                             }
+                            // /donation-requests/:id
                           >
                             <FiEye /> View
                           </button>
@@ -218,12 +251,13 @@ const MyLatestCompnent = () => {
                             type="button"
                             className="btn btn-sm btn-outline rounded-xl gap-2"
                             onClick={() =>
-                              navigate(`/dashboard/edit-donation-request/${r._id}`)
+                              navigate(`/updateDonation/${r._id}`)
                             }
                           >
                             <FiEdit /> Edit
                           </button>
 
+                          
                           {isInProgress && (
                             <>
                               <button
@@ -233,14 +267,15 @@ const MyLatestCompnent = () => {
                               >
                                 <FiCheckCircle /> Done
                               </button>
-
-                              <button
+    <button
                                 type="button"
                                 className="btn btn-sm btn-warning rounded-xl gap-2"
-                                onClick={() => handleStatusChange(r._id, "canceled")}
+                    onClick={() => updateRequestStatus(r._id, 'pending')}
                               >
                                 <FiXCircle /> Cancel
                               </button>
+
+                          
                             </>
                           )}
 

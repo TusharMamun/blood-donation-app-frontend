@@ -31,21 +31,20 @@ const AllDonerRequestes = () => {
   });
 
   // optional: update status from table dropdown
-  const statusMutation = useMutation({
-    mutationFn: ({ id, status }) =>
-      axiosSecure.patch(`/blood-donation-requests/${id}/status`, { status }),
-    onSuccess: () => refetch(),
-  });
+const statusMutation = useMutation({
+  mutationFn: ({ id, status }) =>
+    axiosSecure.patch(`/blood-donation-requests/${id}/status`, { status }),
+  onSuccess: () => refetch(),
+});
 
   const list = data?.result || [];
   const totalPages = data?.totalPages || 1;
 
   const badgeClass = (s) => {
-    if (s === "pending") return "badge badge-warning badge-outline";
-    if (s === "approved") return "badge badge-success badge-outline";
+
     if (s === "done") return "badge badge-info badge-outline";
     if (s === "cancelled") return "badge badge-error badge-outline";
-        if (s === "inprogress") return "badge badge-success badge-outline";
+   
    
     return "badge badge-ghost";
   };
@@ -192,27 +191,25 @@ const AllDonerRequestes = () => {
                   <td className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link
-                        to={`/dashboard/donation-request/${r._id}`}
+                        to={`/donation-requests/${r._id}`}
                         className="btn btn-primary btn-sm rounded-xl"
                       >
                         View
                       </Link>
 
                       {/* optional status update */}
-                      <select
-                        className="select select-bordered select-sm rounded-xl bg-white"
-                        defaultValue={r.status}
-                        disabled={statusMutation.isPending}
-                        onChange={(e) =>
-                          statusMutation.mutate({ id: r._id, status: e.target.value })
-                        }
-                        title="Update status"
-                      >
-                        <option value="pending">pending</option>
-                        <option value="approved">approved</option>
-                        <option value="done">done</option>
-                        <option value="cancelled">cancelled</option>
-                      </select>
+ <select
+  className="select select-bordered select-sm rounded-xl bg-white"
+  defaultValue={r.status}
+  disabled={statusMutation.isPending}
+  onChange={(e) =>
+    statusMutation.mutate({ id: r._id, status: e.target.value })
+  }
+  title="Update status"
+>
+  <option value="done">done</option>
+  <option value="cancelled">cancelled</option>
+</select>
                     </div>
                   </td>
                 </tr>

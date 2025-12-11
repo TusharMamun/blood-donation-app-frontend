@@ -83,7 +83,7 @@ const MyDonationRequests = () => {
   useEffect(() => {
     if (!normalized) return;
     const safe = clamp(page, 1, totalPages);
-    if (safe !== page) setPage(safe);
+    if (safe !== page);
   }, [normalized, page, totalPages]);
 
   // page buttons

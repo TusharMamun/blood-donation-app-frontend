@@ -1,29 +1,26 @@
-import React from 'react'
+import React from 'react';
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { NavLink,useNavigate } from 'react-router-dom';
 import Loading from '../../components/Uicomponent/Loadding';
 
 const DonationRequest = () => {
+  const axiosSecure = useAxiosSecure();
+const navigate =useNavigate()
+  const { data: pendingRequests = [], isLoading, refetch } = useQuery({
+    queryKey: ["donation-requests", "pending"],
+    queryFn: async () => {
+      const { data } = await axiosSecure.get("/donation-requests", {
+        params: { status: "pending" },
+      });
+      return data;
+    },
+  });
 
+  if (isLoading) return <Loading />;
 
-    const axiosSecure = useAxiosSecure();
-
-const { data: pendingRequests = [], isLoading,refetch } = useQuery({
-  queryKey: ["donation-requests", "pending"],
-  queryFn: async () => {
-refetch()
-    const { data } = await axiosSecure.get("/donation-requests", {
-      params: { status: "pending" },
-    });
-        refetch()
-    return data;
-  },
-});
-refetch()
-if (isLoading) return <Loading/>;
   return (
-   <div className="p-4 sm:p-6">
+    <div className="p-4 sm:p-6">
       <div className="mb-5 flex items-end justify-between gap-3">
         <div>
           <h2 className="text-2xl font-extrabold text-slate-900">
@@ -34,7 +31,6 @@ if (isLoading) return <Loading/>;
           </p>
         </div>
 
-        {/* ✅ Manual refresh button ttt */}
         <button
           onClick={() => refetch()}
           className="btn btn-outline btn-sm rounded-xl"
@@ -83,22 +79,23 @@ if (isLoading) return <Loading/>;
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
-                <Link
-                  to={`/dashboard/donation-request/${r._id}`}
-                  className="btn btn-primary w-full rounded-xl"
-                >
-                  View
-                </Link>
-
-                {/* optional action to demonstrate refetch */}
-               
+                     <button
+                            type="button"
+                            className="btn  btn-outline rounded-xl gap-2"
+                            onClick={() =>
+                              navigate(`/donation-requests/${r._id}`)
+                            }
+                            // /donation-requests/:id
+                          >
+                             View
+                          </button>
               </div>
             </div>
           ))}
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default DonationRequest
+export default DonationRequest;
